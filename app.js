@@ -41,7 +41,8 @@ app.listen(3000);
 console.log('Listening %d in %s mode', app.address().port, app.settings.env);
 
 tank.motorOn = function(motor){
-  gpio.open(motor, function(){
+  gpio.open(motor, function(err){
+    if(err) return;
     gpio.write(motor, 1, function(){
       gpio.close(motor);
     });
@@ -49,7 +50,14 @@ tank.motorOn = function(motor){
 };
 
 tank.motorOff = function(motor){
-  gpio.open(motor, function(){
+  gpio.open(motor, function(err){
+    if(err){
+      console.log('Pin busy. Incerc iar in 100ms.')
+      setTimeout(function(){
+        tank.motorOff(motor);
+      }, 100);
+      return;
+    }
     gpio.write(motor, 0, function(){
       gpio.close(motor);
     });
