@@ -10,7 +10,7 @@ var express = require('express'),
     async = require('async'),
     _leftMotorFront  = 11,
     _leftMotorBack   = 12,
-    _rightMotorFront = 15;
+    _rightMotorFront = 15,
     _rightMotorBack  = 16;
 
 var app = module.exports = express.createServer(),
