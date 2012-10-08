@@ -4,34 +4,32 @@ $(function () {
     wIsDown = false,
     aIsDown = false,
     sIsDown = false,
-    dIsDown = false,
-    leftMotorPin = 11,
-    rightMotorPin = 12;
+    dIsDown = false;
 
   $(document).keydown(function(e){
     switch(e.which){
       case 87:
         if(wIsDown) return;
         wIsDown = true;
-        socket.emit('turnOn', leftMotorPin);
-        socket.emit('turnOn', rightMotorPin);
+        socket.emit('keydown', 'up');
         $('.up').addClass('active');
         break;
       case 65:
         if(aIsDown) return;
         aIsDown = true;
-        socket.emit('turnOn', leftMotorPin);
+        socket.emit('keydown', 'left');
         $('.left').addClass('active');
         break;
       case 83:
         if(sIsDown) return;
         sIsDown = true;
+        socket.emit('keydown', 'down');
         $('.down').addClass('active');
         break;
       case 68:
         if(dIsDown) return;
         dIsDown = true;
-        socket.emit('turnOn', rightMotorPin);
+        socket.emit('keydown', 'right');
         $('.right').addClass('active');
         break;
     }
@@ -40,27 +38,27 @@ $(function () {
   $(document).keyup(function(e){
     switch(e.which){
       case 87:
-        if(!wIsDown) reddturn;
+        if(!wIsDown) return;
         wIsDown = false;
-        socket.emit('turnOff', leftMotorPin);
-        socket.emit('turnOff', rightMotorPin);
+        socket.emit('keyup', 'up');
         $('.up').removeClass('active');
         break;
       case 65:
         if(!aIsDown) return;
         aIsDown = false;
-        socket.emit('turnOff', leftMotorPin);
+        socket.emit('keyup', 'left');
         $('.left').removeClass('active');
         break;
       case 83:
         if(!sIsDown) return;
         sIsDown = false;
+        socket.emit('keyup', 'down');
         $('.down').removeClass('active');
         break;
       case 68:
         if(!dIsDown) return;
         dIsDown = false;
-        socket.emit('turnOff', rightMotorPin);
+        socket.emit('keyup', 'right');
         $('.right').removeClass('active');
         break;
     }
