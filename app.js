@@ -8,16 +8,15 @@ var express = require('express'),
     gpio = require('pi-gpio'),
     crypto = require('crypto'),
     async = require('async'),
+    tank = {},
     _leftMotorFront  = 11,
     _leftMotorBack   = 12,
     _rightMotorFront = 15,
-    _rightMotorBack  = 16;
-
-var app = module.exports = express.createServer(),
+    _rightMotorBack  = 16,
+    app = module.exports = express.createServer(),
     io = sio.listen(app);
 
 // Configuration
-
 app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -36,85 +35,79 @@ app.configure('production', function() {
 });
 
 // Routes
-
 app.get('/', routes.index);
 
 app.listen(3000);
 console.log('Listening %d in %s mode', app.address().port, app.settings.env);
 
-
-var motorOn = function(motor){
+tank.motorOn = function(motor){
   gpio.open(motor, function(){
     gpio.write(motor, 1, function(){
       gpio.close(motor);
     });
   });
-}
+};
 
-var motorOff = function(motor){
+tank.motorOff = function(motor){
   gpio.open(motor, function(){
     gpio.write(motor, 0, function(){
       gpio.close(motor);
     });
   });
-}
+};
 
-var moveForward = function(){
+tank.moveForward = function(){
   async.series([
-    motorOn(_leftMotorFront),
-    motorOn(_rightMotorFront)
-  ], function(){console.log('done!')});
-}
-
-var moveBackward = function(){
-  async.series([
-    motorOn(_leftMotorBack),
-    motorOn(_rightMotorBack)
-  ], function(){console.log('done!')});
-}
-
-var turnLeft = function(){
-  async.series([
-    motorOn(_rightMotorFront)
-  ], function(){console.log('done!')});
-}
-
-var turnRight = function(){
-  async.series([
-    motorOn(_leftMotorFront)
-  ], function(){console.log('done!')});
-}
-
-var stopAllMotors = function(){
-  async.series([
-    motorOff(_leftMotorFront),
-    motorOff(_leftMotorBack),
-    motorOff(_rightMotorFront),
-    motorOff(_rightMotorBack)
+    tank.motorOn(_leftMotorFront),
+    tank.motorOn(_rightMotorFront)
   ]);
-}
+};
+
+tank.moveBackward = function(){
+  async.series([
+    tank.motorOn(_leftMotorBack),
+    tank.motorOn(_rightMotorBack)
+  ]);
+};
+
+tank.turnLeft = function(){
+  tank.motorOn(_rightMotorFront);
+};
+
+tank.turnRight = function(){
+  tank.motorOn(_leftMotorFront);
+};
+
+tank.stopAllMotors = function(){
+  async.series([
+    tank.motorOff(_leftMotorFront),
+    tank.motorOff(_leftMotorBack),
+    tank.motorOff(_rightMotorFront),
+    tank.motorOff(_rightMotorBack)
+  ]);
+};
 
 io.sockets.on('connection', function(socket) {
 
   socket.on('keydown', function(dir) {
     switch(dir){
      case 'up':
-        moveForward();
+        tank.moveForward();
         break;
       case 'down':
-        moveBackward();
+        tank.moveBackward();
         break;
       case 'left':
-        turnLeft();
+        tank.turnLeft();
         break;
       case 'right':
-        turnRight();
+        tank.turnRight();
         break;
     }
   });
 
   socket.on('keyup', function(dir){
-    stopAllMotors();
+    tank.stopAllMotors();
   });
 
 });
