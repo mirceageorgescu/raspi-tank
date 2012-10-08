@@ -1,8 +1,6 @@
-Real-time-canvas
+raspi-tank
 ================
 
-Small project using HTML5 canvas, socket.io and node.js.
+Controlling a motorized tank using Raspberry Pi, node.js and socket.io.
 
-It allows you to draw on a canvas along with other web clients in real time.
-
-It also supports touch events so it works on mobile devices too.
+This is just a basic version of using websockets to control Pi's GPIO pins.
