@@ -40,63 +40,48 @@ app.get('/', routes.index);
 app.listen(3000);
 console.log('Listening %d in %s mode', app.address().port, app.settings.env);
 
-tank.motorOn = function(motor){
-  gpio.open(motor, function(err){
-    if(err) return;
-    gpio.write(motor, 1, function(){
-      gpio.close(motor);
-    });
-  });
-};
-
-tank.motorOff = function(motor){
-  gpio.open(motor, function(err){
-    if(err){
-      console.log('Pin busy. Incerc iar in 100ms.')
-      setTimeout(function(){
-        tank.motorOff(motor);
-      }, 100);
-      return;
-    }
-    gpio.write(motor, 0, function(){
-      gpio.close(motor);
-    });
-  });
+tank.initPins = function(){
+  async.parallel([
+    gpio.open(_leftMotorFront),
+    gpio.open(_leftMotorBack),
+    gpio.open(_rightMotorFront),
+    gpio.open(_rightMotorBack)
+  ]);
 };
 
 tank.moveForward = function(){
-  async.series([
-    tank.motorOn(_leftMotorFront),
-    tank.motorOn(_rightMotorFront)
+  async.parallel([
+    gpio.write(_leftMotorFront, 1),
+    gpio.write(_rightMotorFront, 1)
   ]);
 };
 
 tank.moveBackward = function(){
-  async.series([
-    tank.motorOn(_leftMotorBack),
-    tank.motorOn(_rightMotorBack)
+  async.parallel([
+    gpio.write(_leftMotorBack, 1),
+    gpio.write(_rightMotorBack, 1)
   ]);
 };
 
 tank.turnLeft = function(){
-  tank.motorOn(_rightMotorFront);
+  gpio.write(_rightMotorFront, 1);
 };
 
 tank.turnRight = function(){
-  tank.motorOn(_leftMotorFront);
+  gpio.write(_leftMotorFront, 1);
 };
 
 tank.stopAllMotors = function(){
-  async.series([
-    tank.motorOff(_leftMotorFront),
-    tank.motorOff(_leftMotorBack),
-    tank.motorOff(_rightMotorFront),
-    tank.motorOff(_rightMotorBack)
+  async.parallel([
+    gpio.write(_leftMotorFront, 0),
+    gpio.write(_leftMotorBack, 0),
+    gpio.write(_rightMotorFront, 0),
+    gpio.write(_rightMotorBack, 0)
   ]);
 };
 
 io.sockets.on('connection', function(socket) {
-
+  
   socket.on('keydown', function(dir) {
     switch(dir){
      case 'up':
@@ -119,3 +104,5 @@ io.sockets.on('connection', function(socket) {
   });
 
 });
+
+tank.initPins();
