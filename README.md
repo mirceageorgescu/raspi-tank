@@ -1,6 +1,10 @@
 raspi-tank
 ================
 
+This is deprecated and not maintained anymore. See this project instead:
+
+https://github.com/mirceageorgescu/raspi-tank-2/
+
 Controlling a motorized tank using Raspberry Pi, node.js and socket.io.
 
 Change log
